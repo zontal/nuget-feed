@@ -1,0 +1,10 @@
+{
+  "sources": [
+    {
+      "name": "feed",
+      "type": "local",
+      "path": "docs",
+      "baseURI": "https://zontal.github.io/nuget-feed/"
+    }
+  ]
+}

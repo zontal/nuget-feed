@@ -1,0 +1,158 @@
+name: Publish to the feed
+
+# Reusable workflow called by the pack workflows of the ZONTAL forks. It pushes the
+# .nupkg files of the caller's artifact to the static feed in docs/, which GitHub Pages
+# serves at https://zontal.github.io/nuget-feed/index.json, and then restores every
+# pushed package anonymously from that URL.
+
+on:
+  workflow_call:
+    inputs:
+      artifact:
+        description: Name of the caller's artifact that holds the .nupkg files
+        type: string
+        default: packages
+    secrets:
+      feed_deploy_key:
+        description: Private SSH deploy key with write access to zontal/nuget-feed
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: '1'
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  FEED_URL: https://zontal.github.io/nuget-feed/
+  SLEET_VERSION: 7.2.0
+
+jobs:
+  push:
+    name: Push to the static feed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.artifact }}
+          path: packages
+
+      - uses: actions/checkout@v7
+        with:
+          repository: zontal/nuget-feed
+          ssh-key: ${{ secrets.feed_deploy_key }}
+          path: feed
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install Sleet
+        run: dotnet tool install --global sleet --version "$SLEET_VERSION"
+
+      # Another fork may push the feed at the same time: every attempt starts from the
+      # current main and re-runs the push, which skips the packages the feed already holds.
+      - name: Push and commit
+        shell: bash
+        working-directory: feed
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5; do
+            git fetch --quiet origin main
+            git reset --quiet --hard origin/main
+            sleet push ../packages --config sleet.json --source feed --skip-existing
+            if [ -z "$(git status --porcelain docs)" ]; then
+              echo 'The feed already holds every package.'
+              exit 0
+            fi
+            git add docs
+            git commit --quiet -m "Add the packages of $GITHUB_REPOSITORY run $GITHUB_RUN_ID"
+            if git push --quiet origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((attempt * 15))
+          done
+          echo 'The feed could not be pushed in 5 attempts.' >&2
+          exit 1
+
+  verify:
+    name: Restore anonymously from the static feed
+    needs: push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.artifact }}
+          path: packages
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: List the packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          : > packages.txt
+          for package in packages/*.nupkg; do
+            nuspec=$(unzip -p "$package" '*.nuspec')
+            id=$(echo "$nuspec" | grep -oPm1 '(?<=<id>)[^<]+')
+            version=$(echo "$nuspec" | grep -oPm1 '(?<=<version>)[^<]+')
+            echo "$id $version" >> packages.txt
+          done
+          cat packages.txt
+
+      # GitHub Pages deploys each feed commit; wait until it serves every version.
+      - name: Wait for GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          deadline=$((SECONDS + 900))
+          while read -r id version; do
+            lower=$(echo "$id" | tr '[:upper:]' '[:lower:]')
+            until curl -fsS "${FEED_URL}flatcontainer/$lower/index.json" 2>/dev/null | grep -q "\"$version\""; do
+              if [ "$SECONDS" -ge "$deadline" ]; then
+                echo "$id $version is not served at $FEED_URL." >&2
+                exit 1
+              fi
+              sleep 15
+            done
+            echo "$id $version is served."
+          done < packages.txt
+
+      - name: Restore without credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir restore-check
+          {
+            echo '<?xml version="1.0" encoding="utf-8"?>'
+            echo '<configuration>'
+            echo '  <packageSources>'
+            echo '    <clear />'
+            echo '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />'
+            echo "    <add key=\"zontal\" value=\"${FEED_URL}index.json\" />"
+            echo '  </packageSources>'
+            echo '  <packageSourceMapping>'
+            echo '    <packageSource key="zontal">'
+            while read -r id version; do
+              echo "      <package pattern=\"$id\" />"
+            done < packages.txt
+            echo '    </packageSource>'
+            echo '    <packageSource key="nuget.org">'
+            echo '      <package pattern="*" />'
+            echo '    </packageSource>'
+            echo '  </packageSourceMapping>'
+            echo '</configuration>'
+          } > restore-check/nuget.config
+          cd restore-check
+          dotnet new classlib --framework net10.0 --name RestoreCheck --output . --no-restore
+          while read -r id version; do
+            dotnet add package "$id" --version "$version" --no-restore
+          done < ../packages.txt
+          dotnet restore
+          while read -r id version; do
+            lower=$(echo "$id" | tr '[:upper:]' '[:lower:]')
+            grep -q "\"$lower/$version\"" obj/project.assets.json
+          done < ../packages.txt
