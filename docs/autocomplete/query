@@ -1,1 +1,1 @@
-{"@context":{"@vocab":"http://schema.nuget.org/schema#","totalHits":{"@type":"http://www.w3.org/2001/XMLSchema#integer"}},"totalHits":0,"index":"sleet-static","data":[]}
+{"index":"sleet-static","totalHits":4,"data":["RaftCs","RaftCs.Storage.File","RaftCs.Transport","RaftCs.Transport.NanoMsg"],"@context":{"@vocab":"http://schema.nuget.org/schema#","totalHits":{"@type":"http://www.w3.org/2001/XMLSchema#integer"}}}
