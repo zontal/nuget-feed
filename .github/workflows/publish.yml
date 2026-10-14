@@ -121,10 +121,13 @@ jobs:
             echo "$id $version is served."
           done < packages.txt
 
+      # Every id the feed holds resolves only from the feed, so a pushed package that
+      # depends on another fork's package restores that dependency from here as well.
       - name: Restore without credentials
         shell: bash
         run: |
           set -euo pipefail
+          curl -fsS "${FEED_URL}sleet.packageindex.json" | jq -r '.packages | keys[]' > feed-ids.txt
           mkdir restore-check
           {
             echo '<?xml version="1.0" encoding="utf-8"?>'
@@ -136,9 +139,9 @@ jobs:
             echo '  </packageSources>'
             echo '  <packageSourceMapping>'
             echo '    <packageSource key="zontal">'
-            while read -r id version; do
+            while read -r id; do
               echo "      <package pattern=\"$id\" />"
-            done < packages.txt
+            done < feed-ids.txt
             echo '    </packageSource>'
             echo '    <packageSource key="nuget.org">'
             echo '      <package pattern="*" />'
