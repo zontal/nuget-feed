@@ -14,6 +14,7 @@ requires a token with `read:packages` even for public packages.
 | --- | --- | --- |
 | [zontal/UA-.NETStandard](https://github.com/zontal/UA-.NETStandard) | `OPCFoundation.NetStandard.Opc.Ua.*` | `2.0.0-zontal.*` |
 | [zontal/raft-cs](https://github.com/zontal/raft-cs) | `RaftCs`, `RaftCs.*` | `1.2.0-zontal.*` |
+| [zontal/sila_tecan](https://github.com/zontal/sila_tecan) | `Tecan.Sila2`, `Tecan.Sila2.*` | `4.4.8-zontal.*` |
 
 ## Use the feed
 
@@ -32,6 +33,8 @@ one source:
       <package pattern="OPCFoundation.NetStandard.Opc.Ua.*" />
       <package pattern="RaftCs" />
       <package pattern="RaftCs.*" />
+      <package pattern="Tecan.Sila2" />
+      <package pattern="Tecan.Sila2.*" />
     </packageSource>
     <packageSource key="nuget.org">
       <package pattern="*" />
@@ -49,6 +52,7 @@ The feed is written only by the `ZONTAL pack` workflow of each fork, through the
    [`sleet.json`](sleet.json)) and the commit is pushed with the deploy key held by the fork as the
    `NUGET_FEED_DEPLOY_KEY` secret.
 2. GitHub Pages deploys `docs/`.
-3. The workflow restores every pushed package from the public URL without credentials.
+3. The workflow restores every pushed package from the public URL without credentials; a .NET tool package is
+   installed with `dotnet tool install` instead, because a project cannot reference it.
 
 Do not edit `docs/` by hand.
