@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>OPCFoundation.NetStandard.Opc.Ua.Core.Schema</id>
+    <version>2.0.0-zontal.2</version>
+    <authors>OPC Foundation</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="file">LICENSE.txt</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <icon>images/logo.jpg</icon>
+    <readme>NugetREADME.md</readme>
+    <projectUrl>https://github.com/zontal/UA-.NETStandard</projectUrl>
+    <description>OPC UA runtime schema generation (XSD, OPC Binary and JSON Schema) for encodeable and complex data types.</description>
+    <releaseNotes>https://github.com/zontal/UA-.NETStandard/releases</releaseNotes>
+    <copyright>Copyright © 2004-2025 OPC Foundation, Inc</copyright>
+    <tags>OPCFoundation OPC UA ios linux dotnet net netcore</tags>
+    <repository type="git" url="https://github.com/zontal/UA-.NETStandard" commit="c0472c37bdeccff8c4e24a9cecf91f4a244eb821" />
+    <dependencies>
+      <group targetFramework="net10.0">
+        <dependency id="OPCFoundation.NetStandard.Opc.Ua.Core" version="2.0.0-zontal.2" exclude="Build,Analyzers" />
+        <dependency id="BitFaster.Caching" version="2.6.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.TimeProvider" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Diagnostics" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Http" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Options" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Options.ConfigurationExtensions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Threading.RateLimiting" version="10.0.12" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.8">
+        <dependency id="OPCFoundation.NetStandard.Opc.Ua.Core" version="2.0.0-zontal.2" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="BitFaster.Caching" version="2.6.1" exclude="Build,Analyzers" />
+        <dependency id="BouncyCastle.Cryptography" version="2.7.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.HashCode" version="6.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.TimeProvider" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Diagnostics" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Http" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Options" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Options.ConfigurationExtensions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Buffers" version="4.6.1" exclude="Build,Analyzers" />
+        <dependency id="System.Collections.Immutable" version="9.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Diagnostics.DiagnosticSource" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Formats.Asn1" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Memory" version="4.6.3" exclude="Build,Analyzers" />
+        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.1.2" exclude="Build,Analyzers" />
+        <dependency id="System.Threading.Channels" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Threading.RateLimiting" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Threading.Tasks.Extensions" version="4.6.3" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net8.0">
+        <dependency id="OPCFoundation.NetStandard.Opc.Ua.Core" version="2.0.0-zontal.2" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="BitFaster.Caching" version="2.6.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.TimeProvider" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Diagnostics" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Http" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Options" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Options.ConfigurationExtensions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Collections.Immutable" version="9.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Diagnostics.DiagnosticSource" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Formats.Asn1" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Threading.Channels" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Threading.RateLimiting" version="10.0.12" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net9.0">
+        <dependency id="OPCFoundation.NetStandard.Opc.Ua.Core" version="2.0.0-zontal.2" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="BitFaster.Caching" version="2.6.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.TimeProvider" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Diagnostics" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Http" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Options" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Options.ConfigurationExtensions" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Diagnostics.DiagnosticSource" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Formats.Asn1" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Threading.Channels" version="10.0.12" exclude="Build,Analyzers" />
+        <dependency id="System.Threading.RateLimiting" version="10.0.12" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
