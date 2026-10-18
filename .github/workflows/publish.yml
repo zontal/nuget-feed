@@ -3,7 +3,7 @@ name: Publish to the feed
 # Reusable workflow called by the pack workflows of the ZONTAL forks. It pushes the
 # .nupkg files of the caller's artifact to the static feed in docs/, which GitHub Pages
 # serves at https://zontal.github.io/nuget-feed/index.json, and then restores every
-# pushed package anonymously from that URL.
+# pushed package anonymously from that URL (a .NET tool package is installed instead).
 
 on:
   workflow_call:
@@ -95,11 +95,19 @@ jobs:
         run: |
           set -euo pipefail
           : > packages.txt
+          : > libraries.txt
+          : > tools.txt
           for package in packages/*.nupkg; do
             nuspec=$(unzip -p "$package" '*.nuspec')
             id=$(echo "$nuspec" | grep -oPm1 '(?<=<id>)[^<]+')
             version=$(echo "$nuspec" | grep -oPm1 '(?<=<version>)[^<]+')
             echo "$id $version" >> packages.txt
+            # A .NET tool package cannot be referenced by a project; it is installed instead.
+            if echo "$nuspec" | grep -q '<packageType name="DotnetTool"'; then
+              echo "$id $version" >> tools.txt
+            else
+              echo "$id $version" >> libraries.txt
+            fi
           done
           cat packages.txt
 
@@ -153,9 +161,15 @@ jobs:
           dotnet new classlib --framework net10.0 --name RestoreCheck --output . --no-restore
           while read -r id version; do
             dotnet add package "$id" --version "$version" --no-restore
-          done < ../packages.txt
+          done < ../libraries.txt
           dotnet restore
           while read -r id version; do
             lower=$(echo "$id" | tr '[:upper:]' '[:lower:]')
             grep -q "\"$lower/$version\"" obj/project.assets.json
-          done < ../packages.txt
+          done < ../libraries.txt
+          while read -r id version; do
+            lower=$(echo "$id" | tr '[:upper:]' '[:lower:]')
+            dotnet tool install "$id" --version "$version" --tool-path "../tools-check/$lower" < /dev/null
+            dotnet tool list --tool-path "../tools-check/$lower" \
+              | awk -v id="$lower" -v version="$version" 'tolower($1) == id && $2 == version { found = 1 } END { exit !found }'
+          done < ../tools.txt
