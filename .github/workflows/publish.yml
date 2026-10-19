@@ -129,29 +129,46 @@ jobs:
             echo "$id $version is served."
           done < packages.txt
 
-      # A pushed package resolves only from the feed. A dependency of a pushed package
-      # resolves from the feed when the feed holds the version the package requires
-      # (another fork's package) and from nuget.org otherwise, also when the feed holds
-      # other versions of its id.
+      # A pushed package resolves only from the feed. A dependency resolves from the feed
+      # when the feed serves the lowest version it admits (another fork's package), and
+      # then so do the dependencies of that version; every other dependency resolves
+      # from nuget.org, also when the feed holds other versions of its id.
       - name: Restore without credentials
         shell: bash
         run: |
           set -euo pipefail
-          cut -d' ' -f1 packages.txt > feed-ids.txt
-          for package in packages/*.nupkg; do
-            unzip -p "$package" '*.nuspec' | { grep -oP '<dependency [^>]*>' || true; } | while read -r dependency; do
+          declare -A checked=()
+          queue=()
+          # Queues each dependency the nuspec $1 states, once per id and lowest version.
+          enqueue() {
+            local dependency id range minimum key
+            while read -r dependency; do
               id=$(echo "$dependency" | grep -oP '(?<= id=")[^"]+')
               range=$(echo "$dependency" | { grep -oP '(?<= version=")[^"]+' || true; })
-              # The lowest version the dependency admits: a bare version or the lower bound of a range.
+              # A bare version, or the lower bound of a range.
               minimum=$(echo "$range" | sed -E 's/^[[(]//; s/[],)].*$//; s/ //g')
               [ -n "$minimum" ] || continue
-              lower=$(echo "$id" | tr '[:upper:]' '[:lower:]')
-              version=$(echo "$minimum" | tr '[:upper:]' '[:lower:]')
-              if curl -fsS "${FEED_URL}flatcontainer/$lower/index.json" 2>/dev/null \
-                | jq -e --arg version "$version" '.versions | index($version) != null' > /dev/null; then
-                echo "$id" >> feed-ids.txt
-              fi
-            done
+              key="${id,,}/${minimum,,}"
+              [ -z "${checked[$key]:-}" ] || continue
+              checked[$key]=1
+              queue+=("$id ${minimum,,}")
+            done < <(echo "$1" | { grep -oP '<dependency [^>]*>' || true; })
+          }
+          cut -d' ' -f1 packages.txt > feed-ids.txt
+          while read -r id version; do
+            checked["${id,,}/${version,,}"]=1
+          done < packages.txt
+          for package in packages/*.nupkg; do
+            enqueue "$(unzip -p "$package" '*.nuspec')"
+          done
+          while [ "${#queue[@]}" -gt 0 ]; do
+            read -r id version <<< "${queue[0]}"
+            queue=("${queue[@]:1}")
+            lower="${id,,}"
+            if nuspec=$(curl -fsS "${FEED_URL}flatcontainer/$lower/$version/$lower.nuspec" 2>/dev/null); then
+              echo "$id" >> feed-ids.txt
+              enqueue "$nuspec"
+            fi
           done
           sort -u -o feed-ids.txt feed-ids.txt
           cat feed-ids.txt
