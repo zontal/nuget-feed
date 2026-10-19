@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Tecan.Sila2.Generator</id>
+    <version>4.4.8-zontal.2</version>
+    <authors>Tecan Trading AG, Switzerland</authors>
+    <owners>Tecan Trading AG, Switzerland</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">BSD-3-Clause</license>
+    <licenseUrl>https://licenses.nuget.org/BSD-3-Clause</licenseUrl>
+    <icon>images\icon.png</icon>
+    <readme>docs\Tecan.Sila2.Generator.md</readme>
+    <projectUrl>https://gitlab.com/SiLA2/vendors/sila_tecan</projectUrl>
+    <description>The code generator of the Tecan SiLA2 SDK for customization purposes</description>
+    <copyright>Copyright 2019 by Tecan Trading AG, Switzerland</copyright>
+    <repository type="git" url="https://github.com/zontal/sila_tecan" commit="5f638456ad067a841695d70b5e33d65b40854a46" />
+    <dependencies>
+      <dependency id="Tecan.Sila2" version="[4.4.8-zontal.2, 5.0.0)" />
+      <dependency id="Tecan.Sila2.DynamicClient" version="[4.4.8-zontal.2, 5.0.0)" />
+      <dependency id="CommandLineParser" version="2.9.1" />
+      <dependency id="Microsoft.Build" version="18.7.1" />
+      <dependency id="Microsoft.Build.Locator" version="1.11.2" />
+      <dependency id="Microsoft.Build.Framework" version="18.7.1" />
+      <dependency id="Microsoft.Build.Utilities.Core" version="18.7.1" />
+      <dependency id="System.CodeDom" version="10.0.9" />
+    </dependencies>
+  </metadata>
+</package>
