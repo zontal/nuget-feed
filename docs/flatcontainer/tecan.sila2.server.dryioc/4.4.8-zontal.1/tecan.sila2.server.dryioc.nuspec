@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Tecan.Sila2.Server.DryIoC</id>
+    <version>4.4.8-zontal.1</version>
+    <authors>Tecan Trading Ltd., Switzerland</authors>
+    <owners>Tecan Trading Ltd., Switzerland</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">BSD-3-Clause</license>
+    <licenseUrl>https://licenses.nuget.org/BSD-3-Clause</licenseUrl>
+    <icon>images\icon.png</icon>
+    <readme>docs\Tecan.Sila2.Server.DryIoC.md</readme>
+    <projectUrl>https://gitlab.com/SiLA2/vendors/sila_tecan</projectUrl>
+    <description>DryIoC bindings for the server part of the Tecan SiLA2 SDK</description>
+    <copyright>Copyright 2019 by Tecan Trading Ltd., Switzerland</copyright>
+    <repository type="git" url="https://github.com/zontal/sila_tecan" commit="d630e47e3a2de986abcefc0ab64232404bca01f0" />
+    <dependencies>
+      <dependency id="Tecan.Sila2" version="[4.4.8-zontal.1, 5.0.0)" />
+      <dependency id="Tecan.Sila2.Server.NetCore" version="[4.4.8-zontal.1, 5.0.0)" />
+      <dependency id="CommandLineParser" version="2.9.1" />
+      <dependency id="DryIoc.MefAttributedModel.dll" version="7.0.2" />
+      <dependency id="DryIoc.Microsoft.DependencyInjection" version="6.2.0" />
+      <dependency id="Grpc.AspNetCore.Server" version="2.80.0" />
+      <dependency id="Makaretu.Dns.Multicast.New" version="0.38.0" />
+      <dependency id="System.Threading.Channels" version="10.0.9" />
+    </dependencies>
+  </metadata>
+</package>
