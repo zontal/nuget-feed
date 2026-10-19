@@ -165,10 +165,21 @@ jobs:
             read -r id version <<< "${queue[0]}"
             queue=("${queue[@]:1}")
             lower="${id,,}"
-            if nuspec=$(curl -fsS "${FEED_URL}flatcontainer/$lower/$version/$lower.nuspec" 2>/dev/null); then
-              echo "$id" >> feed-ids.txt
-              enqueue "$nuspec"
-            fi
+            # Only a 404 states that the feed does not serve the version; any other
+            # answer that is not the nuspec fails the check (curl retries transient ones).
+            status=$(curl -sS --retry 3 -o dependency.nuspec -w '%{http_code}' \
+              "${FEED_URL}flatcontainer/$lower/$version/$lower.nuspec")
+            case "$status" in
+              200)
+                echo "$id" >> feed-ids.txt
+                enqueue "$(cat dependency.nuspec)"
+                ;;
+              404) ;;
+              *)
+                echo "The feed answered HTTP $status for $id $version." >&2
+                exit 1
+                ;;
+            esac
           done
           sort -u -o feed-ids.txt feed-ids.txt
           cat feed-ids.txt
