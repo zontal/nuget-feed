@@ -129,13 +129,60 @@ jobs:
             echo "$id $version is served."
           done < packages.txt
 
-      # Every id the feed holds resolves only from the feed, so a pushed package that
-      # depends on another fork's package restores that dependency from here as well.
+      # A pushed package resolves only from the feed. A dependency resolves from the feed
+      # when the feed serves the lowest version it admits (another fork's package), and
+      # then so do the dependencies of that version; every other dependency resolves
+      # from nuget.org, also when the feed holds other versions of its id.
       - name: Restore without credentials
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsS "${FEED_URL}sleet.packageindex.json" | jq -r '.packages | keys[]' > feed-ids.txt
+          declare -A checked=()
+          queue=()
+          # Queues each dependency the nuspec $1 states, once per id and lowest version.
+          enqueue() {
+            local dependency id range minimum key
+            while read -r dependency; do
+              id=$(echo "$dependency" | grep -oP '(?<= id=")[^"]+')
+              range=$(echo "$dependency" | { grep -oP '(?<= version=")[^"]+' || true; })
+              # A bare version, or the lower bound of a range.
+              minimum=$(echo "$range" | sed -E 's/^[[(]//; s/[],)].*$//; s/ //g')
+              [ -n "$minimum" ] || continue
+              key="${id,,}/${minimum,,}"
+              [ -z "${checked[$key]:-}" ] || continue
+              checked[$key]=1
+              queue+=("$id ${minimum,,}")
+            done < <(echo "$1" | { grep -oP '<dependency [^>]*>' || true; })
+          }
+          cut -d' ' -f1 packages.txt > feed-ids.txt
+          while read -r id version; do
+            checked["${id,,}/${version,,}"]=1
+          done < packages.txt
+          for package in packages/*.nupkg; do
+            enqueue "$(unzip -p "$package" '*.nuspec')"
+          done
+          while [ "${#queue[@]}" -gt 0 ]; do
+            read -r id version <<< "${queue[0]}"
+            queue=("${queue[@]:1}")
+            lower="${id,,}"
+            # Only a 404 states that the feed does not serve the version; any other
+            # answer that is not the nuspec fails the check (curl retries transient ones).
+            status=$(curl -sS --retry 3 -o dependency.nuspec -w '%{http_code}' \
+              "${FEED_URL}flatcontainer/$lower/$version/$lower.nuspec")
+            case "$status" in
+              200)
+                echo "$id" >> feed-ids.txt
+                enqueue "$(cat dependency.nuspec)"
+                ;;
+              404) ;;
+              *)
+                echo "The feed answered HTTP $status for $id $version." >&2
+                exit 1
+                ;;
+            esac
+          done
+          sort -u -o feed-ids.txt feed-ids.txt
+          cat feed-ids.txt
           mkdir restore-check
           {
             echo '<?xml version="1.0" encoding="utf-8"?>'
