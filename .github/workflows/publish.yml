@@ -129,13 +129,32 @@ jobs:
             echo "$id $version is served."
           done < packages.txt
 
-      # Every id the feed holds resolves only from the feed, so a pushed package that
-      # depends on another fork's package restores that dependency from here as well.
+      # A pushed package resolves only from the feed. A dependency of a pushed package
+      # resolves from the feed when the feed holds the version the package requires
+      # (another fork's package) and from nuget.org otherwise, also when the feed holds
+      # other versions of its id.
       - name: Restore without credentials
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsS "${FEED_URL}sleet.packageindex.json" | jq -r '.packages | keys[]' > feed-ids.txt
+          cut -d' ' -f1 packages.txt > feed-ids.txt
+          for package in packages/*.nupkg; do
+            unzip -p "$package" '*.nuspec' | { grep -oP '<dependency [^>]*>' || true; } | while read -r dependency; do
+              id=$(echo "$dependency" | grep -oP '(?<= id=")[^"]+')
+              range=$(echo "$dependency" | { grep -oP '(?<= version=")[^"]+' || true; })
+              # The lowest version the dependency admits: a bare version or the lower bound of a range.
+              minimum=$(echo "$range" | sed -E 's/^[[(]//; s/[],)].*$//; s/ //g')
+              [ -n "$minimum" ] || continue
+              lower=$(echo "$id" | tr '[:upper:]' '[:lower:]')
+              version=$(echo "$minimum" | tr '[:upper:]' '[:lower:]')
+              if curl -fsS "${FEED_URL}flatcontainer/$lower/index.json" 2>/dev/null \
+                | jq -e --arg version "$version" '.versions | index($version) != null' > /dev/null; then
+                echo "$id" >> feed-ids.txt
+              fi
+            done
+          done
+          sort -u -o feed-ids.txt feed-ids.txt
+          cat feed-ids.txt
           mkdir restore-check
           {
             echo '<?xml version="1.0" encoding="utf-8"?>'
